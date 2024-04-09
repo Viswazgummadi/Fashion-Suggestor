@@ -1,5 +1,4 @@
 from Border_detection.Enigma import *
-from detect_gender_implmentation import *
 from Clustering import *
 import csv
 from ratings import *
