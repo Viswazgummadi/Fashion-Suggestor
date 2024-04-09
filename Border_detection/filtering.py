@@ -12,7 +12,7 @@ def adjust_pixel_values(image):
 
 
 # Read the input image
-image = cv2.imread('2.jpg', cv2.IMREAD_GRAYSCALE)
+image = cv2.imread('1827.jpg', cv2.IMREAD_GRAYSCALE)
 
 # Apply Canny edge detection
 edges = cv2.Canny(image, 50, 190)

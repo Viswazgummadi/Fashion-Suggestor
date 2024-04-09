@@ -143,6 +143,7 @@ def extract_bordered_portion(image, edges, gray):
 
 def canny(gray_image,t1,t2):
     blurred_image = apply_gaussian_blur(gray_image)
+    # can use both ways
     kernel_size = 5
     sigma = 0.3 * ((kernel_size - 1) * 0.5 - 1) + 0.8
     kernel = gaussian_kernel(kernel_size, sigma)
@@ -172,3 +173,4 @@ def canny(gray_image,t1,t2):
     edges = hysteresis_thresholding(magnitude_suppressed)
     # ### enhancing
     enhanced = adjust_pixel_values(edges)
+    return enhanced
