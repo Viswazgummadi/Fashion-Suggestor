@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enigma</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/boxicons/2.0.7/css/boxicons.min.css"
+    />
+    <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico" />
+  </head>
+  <body>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="inner-cursor"></div>
+    <div class="outer-cursor"></div>
+    <div class="header-container">
+      <!-- Logo and name -->
+      <div class="logo-name">
+        <img
+          id="logo"
+          src="{{ url_for('static', filename='assets/9032132.png') }}"
+          alt="logo"
+        />
+        <h1>Enigma</h1>
+      </div>
+
+      <!-- Icons -->
+      <div class="header-icons">
+        <!-- Icon with tooltip for Favorites -->
+        <div class="tooltip">
+          <a href="/"><i class="bx bx-home-smile"></i></a>
+          <span class="tooltiptext">home</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="sugg.html"><i class="bx bx-images"></i></a>
+          <span class="tooltiptext">home</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="favs.html"><i class="bx bx-book-heart"></i></a>
+          <span class="tooltiptext">Favorites</span>
+        </div>
+
+        <!-- Icon with tooltip for Cart -->
+        <div class="tooltip">
+          <a href="cart.html"><i class="bx bxs-shopping-bag"></i></a>
+          <span class="tooltiptext">Cart</span>
+        </div>
+
+        <!-- Icon with tooltip for Work -->
+        <div class="tooltip">
+          <a href="work.html"><i class="bx bxs-network-chart"></i></a>
+          <span class="tooltiptext">Work</span>
+        </div>
+
+        <!-- Icon with tooltip for Crew -->
+        <div class="tooltip">
+          <a href="crew.html"><i class="bx bxs-id-card"></i></a>
+          <span class="tooltiptext">Crew</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="dev.html"><i class="bx bxl-dev-to"></i></a>
+          <span class="tooltiptext">Playground</span>
+        </div>
+      </div>
+    </div>
+    <!-- Description of Image Segmentation Section -->
+    <div class="card-container" id="encards">
+      <div class="card">
+        <div class="card-content">
+          <h2>Image Processing</h2>
+          <p>
+            Utilize Canny Edge Detection, Thresholding, and Color Gradient
+            techniques to identify the shirt within the image. Apply contour
+            detection to isolate the shirt region. Generate an output image
+            highlighting or mostly showing only the shirt area.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-content">
+          <h2>K-Means Clustering</h2>
+          <p>
+            Perform K-Means clustering on the shirt region identified in part 1
+            to extract dominant colors. Retrieve the top three dominant colors
+            present in the shirt.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-content">
+          <h2>Gender Classification</h2>
+          <p>
+            Integrate a gender classification model to determine the gender of
+            the person wearing the shirt. Utilize the output from Image
+            Processing as input to the gender classification model. Output 0 for
+            male and 1 for female gender classification.
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="card-container">
+      <div class="card">
+        <div class="card-content">
+          <h2>Random Ratings Generation</h2>
+          <p>
+            Generate random ratings for the recommended shirts. Assign these
+            ratings to the suggested shirts to simulate user feedback.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-content">
+          <h2>(Color,rating)--->Recommendation</h2>
+          <p>
+            A classifier trained on a dataset to recommend shirts based on their
+            colors. From top three dominant colors in K-Means Clustering as
+            features. Query the classifier to suggest nearest colored shirts
+            based on gender.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-content">
+          <h2>Flask Backend Implementation</h2>
+          <p>
+            Integrating the entire process into a Flask backend application.
+            Host the application locally to serve recommendations based on the
+            input image. Display the suggestions along with the random ratings
+          </p>
+        </div>
+      </div>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get the inner and outer cursors
+        let innerCursor = document.querySelector(".inner-cursor");
+
+        // Update the cursor position on mouse move
+        document.addEventListener("mousemove", mouseCursor);
+
+        function mouseCursor(e) {
+          let x = e.clientX;
+          let y = e.clientY;
+
+          x += window.pageXOffset;
+          y += window.pageYOffset;
+          // Update the position of the cursors
+          innerCursor.style.left = `${x}px`;
+          innerCursor.style.top = `${y}px`;
+        }
+
+        // Increase the size of the inner cursor on hover over clickable elements
+        let clickableElements = document.querySelectorAll(
+          "a, button, input[type='submit'], input[type='file'], label[for='file-input']"
+        );
+
+        clickableElements.forEach((element) => {
+          element.addEventListener("mouseover", () => {
+            innerCursor.classList.add("grow");
+          });
+
+          element.addEventListener("mouseleave", () => {
+            innerCursor.classList.remove("grow");
+          });
+        });
+
+        // Get the circles and set initial coordinates
+        const coords = { x: 0, y: 0 };
+        const circles = document.querySelectorAll(".circle");
+        const colors = [
+          "#1f005c",
+          "#1d146c",
+          "#19247c",
+          "#12348b",
+          "#044299",
+          "#0051a7",
+          "#0060b5",
+          "#006fc2",
+          "#007ece",
+          "#008dda",
+          "#009ce5",
+          "#00abf0",
+        ];
+        circles.forEach(function (circle, index) {
+          circle.x = 0;
+          circle.y = 0;
+          circle.style.backgroundColor = colors[index % colors.length];
+        });
+
+        // Update the coordinates on mouse move
+        window.addEventListener("mousemove", function (e) {
+          coords.x = e.clientX;
+          coords.y = e.clientY;
+        });
+
+        // Animate the circles
+        function animateCircles() {
+          let x = coords.x;
+          let y = coords.y;
+
+          x += window.pageXOffset;
+          y += window.pageYOffset;
+
+          circles.forEach(function (circle, index) {
+            // Update the position and size of the circle
+            circle.style.left = x - circle.offsetWidth / 2 + "px";
+            circle.style.top = y - circle.offsetHeight / 2 + "px";
+            circle.style.transform = `scale(${
+              (circles.length - index) / circles.length
+            })`;
+
+            circle.x = x;
+            circle.y = y;
+
+            // Update the next circle's position
+            const nextCircle = circles[index + 1] || circles[0];
+            x += (nextCircle.x - x) * 0.12;
+            y += (nextCircle.y - y) * 0.12;
+          });
+
+          // Update the position of the inner cursor with the last circle's position
+          innerCursor.style.left = x + "px";
+          innerCursor.style.top = y + "px";
+
+          requestAnimationFrame(animateCircles);
+        }
+
+        animateCircles();
+      });
+    </script>
+  </body>
+</html>

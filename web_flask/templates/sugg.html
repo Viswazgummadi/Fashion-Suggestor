@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enigma</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/boxicons/2.0.7/css/boxicons.min.css"
+    />
+    <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico" />
+
+    <style>
+      .image-wrapper {
+        display: none;
+        position: relative;
+      }
+
+      .image-wrapper.active {
+        display: block;
+      }
+
+      .image-container {
+        position: relative;
+      }
+
+      .prev,
+      .next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: transparent;
+        border: none;
+        font-size: 24px;
+      }
+
+      .prev {
+        left: 0;
+      }
+
+      .next {
+        right: 0;
+      }
+
+      .action-icons {
+        position: relative;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+      }
+
+      .action-icons > * {
+        margin-right: 10px;
+        font-size: 24px;
+      }
+
+      .action-icons > .like-btn {
+        margin-right: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="inner-cursor"></div>
+    <div class="outer-cursor"></div>
+    <div class="header-container">
+      <!-- Logo and name -->
+      <div class="logo-name">
+        <img
+          id="logo"
+          src="{{ url_for('static', filename='assets/9032132.png') }}"
+          alt="logo"
+        />
+        <h1>Enigma</h1>
+      </div>
+
+      <!-- Icons -->
+      <div class="header-icons">
+        <!-- Icon with tooltip for Favorites -->
+        <div class="tooltip">
+          <a href="/"><i class="bx bx-home-smile"></i></a>
+          <span class="tooltiptext">Home</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="sugg.html"><i class="bx bx-images"></i></a>
+          <span class="tooltiptext">Suggestions</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="favs.html"><i class="bx bx-book-heart"></i></a>
+          <span class="tooltiptext">Favorites</span>
+        </div>
+
+        <!-- Icon with tooltip for Cart -->
+        <div class="tooltip">
+          <a href="cart.html"><i class="bx bxs-cart"></i></a>
+          <span class="tooltiptext">Cart</span>
+        </div>
+
+        <!-- Icon with tooltip for Work -->
+        <div class="tooltip">
+          <a href="work.html"><i class="bx bxs-network-chart"></i></a>
+          <span class="tooltiptext">Work</span>
+        </div>
+
+        <!-- Icon with tooltip for Crew -->
+        <div class="tooltip">
+          <a href="crew.html"><i class="bx bxs-id-card"></i></a>
+          <span class="tooltiptext">Crew</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="dev.html"><i class="bx bxl-dev-to"></i></a>
+          <span class="tooltiptext">Playground</span>
+        </div>
+      </div>
+    </div>
+    <div class="image-container" id="suggestor">
+      <button class="prev" onclick="changeImage(-1)">&#10094;</button>
+      <button class="next" onclick="changeImage(1)">&#10095;</button>
+      {% for image_name in image_names %}
+      <div class="image-wrapper" id="image{{ loop.index0 }}">
+        <img
+          src="{{ url_for('static', filename='images/' + image_name) }}"
+          alt="{{ image_name }}"
+        />
+        <div class="action-icons">
+          <span class="like-btn" onclick="toggleFavorite({{ loop.index0 }})">
+            <i id="heartIcon{{ loop.index0 }}" class="bx bx-heart"></i>
+          </span>
+          <i class="bx bxs-cart" onclick="addToCart()"></i>
+          <i class="bx bxs-send" onclick="shareImage()"></i>
+          <div class="rating">
+            <span class="star" onclick="toggleRating({{ loop.index0 }}, 1)"
+              ><i id="star{{ loop.index0 }}-1" class="bx bx-star"></i
+            ></span>
+            <span class="star" onclick="toggleRating({{ loop.index0 }}, 2)"
+              ><i id="star{{ loop.index0 }}-2" class="bx bx-star"></i
+            ></span>
+            <span class="star" onclick="toggleRating({{ loop.index0 }}, 3)"
+              ><i id="star{{ loop.index0 }}-3" class="bx bx-star"></i
+            ></span>
+            <span class="star" onclick="toggleRating({{ loop.index0 }}, 4)"
+              ><i id="star{{ loop.index0 }}-4" class="bx bx-star"></i
+            ></span>
+            <span class="star" onclick="toggleRating({{ loop.index0 }}, 5)"
+              ><i id="star{{ loop.index0 }}-5" class="bx bx-star"></i
+            ></span>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <script>
+                      var currentIndex = 0;
+                      var imageWrappers = document.querySelectorAll('.image-wrapper');
+                      var likeStatus = new Array({{ image_names|length }}).fill(false);
+
+                      // Check if an image is in favorites list
+                      function checkFavorite(imageSrc) {
+                          var xhr = new XMLHttpRequest();
+                          xhr.open("GET", "/check-favorite?imageSrc=" + encodeURIComponent(imageSrc), true);
+                          xhr.onreadystatechange = function () {
+                              if (xhr.readyState === 4 && xhr.status === 200) {
+                                  var response = JSON.parse(xhr.responseText);
+                                  if (response.isFavorite) {
+                                      // Image is in favorites list, update likeStatus array and heart icon
+                                      var index = Array.from(imageWrappers).findIndex(function(wrapper) {
+                                          return wrapper.querySelector('img').getAttribute('src') === imageSrc;
+                                      });
+                                      if (index !== -1) {
+                                          likeStatus[index] = true;
+                                          var heartIcon = document.getElementById("heartIcon" + index);
+                                          heartIcon.classList.remove("bx-heart");
+                                          heartIcon.classList.add("bxs-heart");
+                                      }
+                                  }
+                              }
+                          };
+                          xhr.send();
+                      }
+                      function checkRatings(imageSrc) {
+                          var xhr = new XMLHttpRequest();
+                          xhr.open("GET", "/check-ratings?imageSrc=" + encodeURIComponent(imageSrc), true);
+                          xhr.onreadystatechange = function () {
+                              if (xhr.readyState === 4 && xhr.status === 200) {
+                                  var response = JSON.parse(xhr.responseText);
+                                  if (response.isRating) {
+                                      // Image is in ratings list, update likeStatus array and heart icon
+                                      var index = Array.from(imageWrappers).findIndex(function(wrapper) {
+                                          return wrapper.querySelector('img').getAttribute('src') === imageSrc;
+                                      });
+                                      if (index !== -1) {
+                                          likeStatus[index] = true;
+                                          var rating = document.getElementById("i" + index);
+                                          rating.classList.remove("bx-star");
+                                          rating.classList.add("bxs-star");
+                                      }
+                                  }
+                              }
+                          };
+                          xhr.send();
+                      }
+
+                      // Check if each image is in favorites list when the page loads
+                      imageWrappers.forEach(function(wrapper) {
+                          var imageSrc = wrapper.querySelector('img').getAttribute('src');
+                          checkFavorite(imageSrc);
+                      });
+                      //check the ratings of images when page loads
+                      imageWrappers.forEach(function(wrapper) {
+                          var imageSrc = wrapper.querySelector('img').getAttribute('src');
+                          checkRatings(imageSrc);
+                      });
+
+                      function toggleFavorite(index) {
+                          var heartIcon = document.getElementById("heartIcon" + index);
+                          likeStatus[index] = !likeStatus[index];
+
+                          // Send AJAX request to toggle favorite status
+                          var xhr = new XMLHttpRequest();
+                          xhr.open("POST", "/toggle-favorite", true);
+                          xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                          xhr.onreadystatechange = function () {
+                              if (xhr.readyState === 4 && xhr.status === 200) {
+                                  var response = JSON.parse(xhr.responseText);
+                                  if (response.success) {
+                                      // Update heart icon based on favorite status
+                                      if (likeStatus[index]) {
+                                          heartIcon.classList.remove("bx-heart");
+                                          heartIcon.classList.add("bxs-heart");
+                                      } else {
+                                          heartIcon.classList.remove("bxs-heart");
+                                          heartIcon.classList.add("bx-heart");
+                                      }
+                                  } else {
+                                      // Handle error
+                                      console.error("Failed to toggle favorite status");
+                                  }
+
+                              }
+                          };
+                          xhr.send("imageSrc=" + encodeURIComponent(imageWrappers[index].querySelector('img').getAttribute('src')));
+                      }
+                      function toggleRating(index, rating) {
+                // Send AJAX request to toggle rating
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/toggle-rating", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.success) {
+                            // Update the appearance of stars based on the selected rating
+                            for (var i = 1; i <= 5; i++) {
+                                var starIcon = document.getElementById("star" + index + "-" + i);
+                                if (i <= rating) {
+                                    starIcon.classList.remove("bx-star");
+                                    starIcon.classList.add("bxs-star");
+                                } else {
+                                    starIcon.classList.remove("bxs-star");
+                                    starIcon.classList.add("bx-star");
+                                }
+                            }
+                        } else {
+                            // Handle error
+                            console.error("Failed to toggle rating");
+                        }
+                    }
+                };
+                // Send the image source and the selected rating to the server
+                xhr.send("imageSrc=" + encodeURIComponent(imageWrappers[index].querySelector('img').getAttribute('src')) + "&rating=" + rating);
+            }
+            // Function to check ratings immediately upon page load
+      window.addEventListener('DOMContentLoaded', function() {
+          checkRatingChanges();
+      });
+
+      // Function to periodically check for changes in ratings
+      function checkRatingChanges() {
+          // Send AJAX request to check for changes in ratings
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", "/check-rating-changes", true);
+          xhr.onreadystatechange = function () {
+              if (xhr.readyState === 4 && xhr.status === 200) {
+                  var ratings = JSON.parse(xhr.responseText);
+                  // Update the appearance of stars based on the ratings received
+                  ratings.forEach(function(rating) {
+                      var imageSrc = rating.imageSrc;
+                      var newRating = rating.rating;
+                      var index = Array.from(imageWrappers).findIndex(function(wrapper) {
+                          return wrapper.querySelector('img').getAttribute('src') === imageSrc;
+                      });
+                      if (index !== -1) {
+                          for (var i = 1; i <= 5; i++) {
+                              var starIcon = document.getElementById("star" + index + "-" + i);
+                              if (i <= newRating) {
+                                  starIcon.classList.remove("bx-star");
+                                  starIcon.classList.add("bxs-star");
+                              } else {
+                                  starIcon.classList.remove("bxs-star");
+                                  starIcon.classList.add("bx-star");
+                              }
+                          }
+                      }
+                  });
+              }
+          };
+          xhr.send();
+      }
+
+      // Call the function to periodically check for rating changes
+      setInterval(checkRatingChanges, 5000); // Adjust the interval as needed
+
+
+
+                      function changeImage(offset) {
+                          imageWrappers[currentIndex].classList.remove('active');
+                          currentIndex += offset;
+                          if (currentIndex < 0) {
+                              currentIndex = imageWrappers.length - 1;
+                          } else if (currentIndex >= imageWrappers.length) {
+                              currentIndex = 0;
+                          }
+                          imageWrappers[currentIndex].classList.add('active');
+                      }
+
+                      document.addEventListener("keydown", function (event) {
+                          if (event.keyCode === 37 || event.keyCode === 38) {  // Left arrow key or Up arrow key
+                              changeImage(-1);
+                          } else if (event.keyCode === 39 || event.keyCode === 40) {  // Right arrow key or Down arrow key
+                              changeImage(1);
+                          }
+                      });
+
+                      // Initialize first image as active
+                      imageWrappers[currentIndex].classList.add('active');
+
+                      document.addEventListener("DOMContentLoaded", function () {
+                    // Get the inner and outer cursors
+                    let innerCursor = document.querySelector(".inner-cursor");
+                    let outerCursor = document.querySelector(".outer-cursor");
+
+                    // Update the cursor position on mouse move
+                    document.addEventListener("mousemove", mouseCursor);
+
+                    function mouseCursor(e) {
+                      let x = e.clientX;
+                      let y = e.clientY;
+
+                      // Update the position of the cursors
+                      innerCursor.style.left = `${x}px`;
+                      innerCursor.style.top = `${y}px`;
+                      outerCursor.style.left = `${x}px`;
+                      outerCursor.style.top = `${y}px`;
+                    }
+
+                    // Increase the size of the inner cursor on hover over clickable elements
+                    let clickableElements = document.querySelectorAll(
+                      "a, button, input[type='submit'], input[type='file'], label[for='file-input']"
+                    );
+
+                    clickableElements.forEach((element) => {
+                      element.addEventListener("mouseover", () => {
+                        innerCursor.classList.add("grow");
+                      });
+
+                      element.addEventListener("mouseleave", () => {
+                        innerCursor.classList.remove("grow");
+                      });
+                    });
+
+                    // Get the circles and set initial coordinates
+                    const coords = { x: 0, y: 0 };
+                    const circles = document.querySelectorAll(".circle");
+                    const colors = [
+                      "#1f005c",
+                      "#1d146c",
+                      "#19247c",
+                      "#12348b",
+                      "#044299",
+                      "#0051a7",
+                      "#0060b5",
+                      "#006fc2",
+                      "#007ece",
+                      "#008dda",
+                      "#009ce5",
+                      "#00abf0",
+                    ];
+                    circles.forEach(function (circle, index) {
+                      circle.x = 0;
+                      circle.y = 0;
+                      circle.style.backgroundColor = colors[index % colors.length];
+                    });
+
+                    // Update the coordinates on mouse move
+                    window.addEventListener("mousemove", function (e) {
+                      coords.x = e.clientX;
+                      coords.y = e.clientY;
+                    });
+
+                    // Animate the circles
+                    function animateCircles() {
+                      let x = coords.x;
+                      let y = coords.y;
+
+                      circles.forEach(function (circle, index) {
+                        // Update the position and size of the circle
+                        circle.style.left = x - circle.offsetWidth / 2 + "px";
+                        circle.style.top = y - circle.offsetHeight / 2 + "px";
+                        circle.style.transform = `scale(${
+                          (circles.length - index) / circles.length
+                        })`;
+
+                        circle.x = x;
+                        circle.y = y;
+
+                        // Update the next circle's position
+                        const nextCircle = circles[index + 1] || circles[0];
+                        x += (nextCircle.x - x) * 0.12;
+                        y += (nextCircle.y - y) * 0.12;
+                      });
+
+                      requestAnimationFrame(animateCircles);
+                    }
+
+                    animateCircles();
+                  });
+                      function shareImage() {
+                    // Get the URL of the current image
+                    var imageUrl = document.querySelector('.image-wrapper.active img').getAttribute('src');
+
+                    // Check if the navigator.share API is available
+                    if (navigator.share) {
+                      navigator.share({
+                        title: 'Share Image',
+                        text: 'Check out this image!',
+                        url: imageUrl
+                      })
+                      .then(() => console.log('Shared successfully'))
+                      .catch((error) => console.error('Error sharing:', error));
+                    } else {
+                      // Fallback behavior if navigator.share is not available
+                      alert('Sharing is not supported in this browser.');
+                    }
+                  }
+    </script>
+  </body>
+</html>
