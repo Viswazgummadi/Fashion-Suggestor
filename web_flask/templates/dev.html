@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enigma</title>
+    <link rel="icon" type="image/x-icon" href="/static/assets/favicon.ico" />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='stylei.css') }}"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/boxicons/2.0.7/css/boxicons.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <style>
+      .card-container3 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        z-index: -3;
+      }
+
+      .card3 {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: -4px 6px 7px rgba(0, 0, 0, 0.4);
+        width: 100%; /* Take up full width */
+        max-width: 1350px; /* Limit the maximum width of the card */
+        padding: 20px; /* Add padding as needed */
+        z-index: -3;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header-container">
+      <!-- Logo and name -->
+      <div class="logo-name">
+        <img
+          id="logo"
+          src="{{ url_for('static', filename='assets/9032132.png') }}"
+          alt="logo"
+        />
+        <h1>Enigma</h1>
+      </div>
+
+      <!-- Icons -->
+      <div class="header-icons">
+        <!-- Icon with tooltip for Favorites -->
+        <div class="tooltip">
+          <a href="/"><i class="bx bx-home-smile"></i></a>
+          <span class="tooltiptext">Home</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="sugg.html"><i class="bx bx-images"></i></a>
+          <span class="tooltiptext">Suggestions</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="favs.html"><i class="bx bx-book-heart"></i></a>
+          <span class="tooltiptext">Favorites</span>
+        </div>
+
+        <!-- Icon with tooltip for Cart -->
+        <div class="tooltip">
+          <a href="cart.html"><i class="bx bxs-cart"></i></a>
+          <span class="tooltiptext">Cart</span>
+        </div>
+
+        <!-- Icon with tooltip for Work -->
+        <div class="tooltip">
+          <a href="work.html"><i class="bx bxs-network-chart"></i></a>
+          <span class="tooltiptext">Work</span>
+        </div>
+
+        <!-- Icon with tooltip for Crew -->
+        <div class="tooltip">
+          <a href="crew.html"><i class="bx bxs-id-card"></i></a>
+          <span class="tooltiptext">Crew</span>
+        </div>
+
+        <div class="tooltip">
+          <a href="dev.html" class="active"><i class="bx bxl-dev-to"></i></a>
+          <span class="tooltiptext">Playground</span>
+        </div>
+      </div>
+    </div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="circle"></div>
+    <div class="inner-cursor"></div>
+    <div class="card-container3">
+      <div class="card3">
+        <p>
+          This is the text inside the card.<br />This is the text inside the
+          card.<br />This is the text inside the card.<br />This is the text
+          inside the card.<br />This is the text inside the card.<br />This is
+          the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />This is the text inside the card.<br />This
+          is the text inside the card.<br />
+        </p>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Get the inner and outer cursors
+        let innerCursor = document.querySelector(".inner-cursor");
+
+        // Update the cursor position on mouse move
+        document.addEventListener("mousemove", mouseCursor);
+
+        function mouseCursor(e) {
+          let x = e.clientX;
+          let y = e.clientY;
+
+          x += window.pageXOffset;
+          y += window.pageYOffset;
+          // Update the position of the cursors
+          innerCursor.style.left = `${x}px`;
+          innerCursor.style.top = `${y}px`;
+        }
+
+        // Increase the size of the inner cursor on hover over clickable elements
+        let clickableElements = document.querySelectorAll(
+          "a, button, input[type='submit'], input[type='file'], label[for='file-input']"
+        );
+
+        clickableElements.forEach((element) => {
+          element.addEventListener("mouseover", () => {
+            innerCursor.classList.add("grow");
+          });
+
+          element.addEventListener("mouseleave", () => {
+            innerCursor.classList.remove("grow");
+          });
+        });
+
+        // Get the circles and set initial coordinates
+        const coords = { x: 0, y: 0 };
+        const circles = document.querySelectorAll(".circle");
+        const colors = [
+          "#1f005c",
+          "#1d146c",
+          "#19247c",
+          "#12348b",
+          "#044299",
+          "#0051a7",
+          "#0060b5",
+          "#006fc2",
+          "#007ece",
+          "#008dda",
+          "#009ce5",
+          "#00abf0",
+        ];
+        circles.forEach(function (circle, index) {
+          circle.x = 0;
+          circle.y = 0;
+          circle.style.backgroundColor = colors[index % colors.length];
+        });
+
+        // Update the coordinates on mouse move
+        window.addEventListener("mousemove", function (e) {
+          coords.x = e.clientX;
+          coords.y = e.clientY;
+        });
+
+        // Animate the circles
+        function animateCircles() {
+          let x = coords.x;
+          let y = coords.y;
+
+          x += window.pageXOffset;
+          y += window.pageYOffset;
+
+          circles.forEach(function (circle, index) {
+            // Update the position and size of the circle
+            circle.style.left = x - circle.offsetWidth / 2 + "px";
+            circle.style.top = y - circle.offsetHeight / 2 + "px";
+            circle.style.transform = `scale(${
+              (circles.length - index) / circles.length
+            })`;
+
+            circle.x = x;
+            circle.y = y;
+
+            // Update the next circle's position
+            const nextCircle = circles[index + 1] || circles[0];
+            x += (nextCircle.x - x) * 0.12;
+            y += (nextCircle.y - y) * 0.12;
+          });
+
+          // Update the position of the inner cursor with the last circle's position
+          innerCursor.style.left = x + "px";
+          innerCursor.style.top = y + "px";
+
+          requestAnimationFrame(animateCircles);
+        }
+
+        animateCircles();
+      });
+    </script>
+  </body>
+</html>
